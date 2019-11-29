@@ -20,7 +20,7 @@
 
 def kmult(x, y):
     """Return product of x * y with Karatsuba magic."""
-    if x < 0 or y < 0:
+    if x < 0 and y < 0:
         print('Numbers must be positive!')
         return -1
 
@@ -54,7 +54,7 @@ def _split_int(i, digits):
 
 def kmult_pad(x, y):
     """Return product of x * y with Karatsuba magic and zero padding."""
-    if x < 0 or y < 0:
+    if x < 0 and y < 0:
         print('Numbers must be positive!')
         return -1
 
