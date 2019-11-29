@@ -41,24 +41,14 @@ def kmult(x, y):
     return A * 10 ** (n * 2) + E * 10 ** (n) + D
 
 
-def pad_nums(x, y):
-    """Pad a number with zeros if odd num of digits."""
-    x_len, y_len = len(str(x)), len(str(y))
-    if x_len == y_len:
-        return x, y
-    return
-
-
 def _split_int(i, digits):
     """Split integer into two integers.
 
         Pad if num of i digits < digits.
         Ex) 12, 4 -> 0012
     """
-    i_len = len(str(i))
-    if i_len < digits:
-        len_diff = digits - i_len
-        return 0, i % (10 ** (i + len_diff // 2))
+    if len(str(i)) < digits:
+        return 0, i % (10 ** ((digits) // 2))
     return i // (10 ** (i // 2)), i % (10 ** (i // 2))
 
 
