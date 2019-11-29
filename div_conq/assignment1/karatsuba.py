@@ -17,6 +17,7 @@
     2718281828459045235360287471352662497757247093699959574966967627
 """
 
+
 def kmult(x, y):
     """Return product of x * y with Karatsuba magic."""
     if x < 0 or y < 0:
@@ -29,7 +30,6 @@ def kmult(x, y):
 
     # Divide by 2 to handle odd and even digit numbers
     n = max(len(str(x)), len(str(y))) // 2
-    n1 = max(len(str(x)), len(str(y)))
 
     a, b = (x // 10 ** n, x % 10 ** n)
     c, d = (y // 10 ** n, y % 10 ** n)
@@ -37,8 +37,51 @@ def kmult(x, y):
     A = kmult(a, c)
     D = kmult(b, d)
     E = kmult(a + b, c + d) - A - D
-    
-    return A * 10**(n*2) + E * 10**(n) + D
+
+    return A * 10 ** (n * 2) + E * 10 ** (n) + D
+
+
+def pad_nums(x, y):
+    """Pad a number with zeros if odd num of digits."""
+    x_len, y_len = len(str(x)), len(str(y))
+    if x_len == y_len:
+        return x, y
+    return
+
+
+def _split_int(i, digits):
+    """Split integer into two integers.
+
+        Pad if num of i digits < digits.
+        Ex) 12, 4 -> 0012
+    """
+    i_len = len(str(i))
+    if i_len < digits:
+        len_diff = digits - i_len
+        return 0, i % (10 ** (i + len_diff // 2))
+    return i // (10 ** (i // 2)), i % (10 ** (i // 2))
+
+
+def kmult_pad(x, y):
+    """Return product of x * y with Karatsuba magic and zero padding."""
+    if x < 0 or y < 0:
+        print('Numbers must be positive!')
+        return -1
+
+    # Base case
+    if x < 10 or y < 10:
+        return x * y
+
+    n = max(len(str(x)), len(str(y)))
+
+    a, b = _split_int(x, n)
+    c, d = _split_int(y, n)
+
+    A = kmult(a, c)
+    D = kmult(b, d)
+    E = kmult(a + b, c + d) - A - D
+
+    return A * 10 ** (n) + E * 10 ** (n // 2) + D
 
 
 def main():
@@ -50,11 +93,10 @@ def main():
             result = kmult(x, y)
             if result == -1:
                 continue
-            print(kmult(x, y))
+            print(result)
 
-        except ValueError as e:
+        except ValueError:
             print('\nInvalid!')
-            raise e
         except KeyboardInterrupt:
             print('\nSee you!')
             exit(0)
