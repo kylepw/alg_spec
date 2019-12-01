@@ -19,7 +19,7 @@ def _merge_and_count_split_inv(left, right):
             merged.append(right[j])
             j += 1
             # Count inversions
-            inv_count += max_left - i + 1
+            inv_count += max_left - i
 
     while i < max_left:
         merged.append(left[i])
