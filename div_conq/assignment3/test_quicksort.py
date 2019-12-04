@@ -1,6 +1,6 @@
 from random import randint, seed
 import unittest
-from quicksort import qsort
+from quicksort import qsort, _left_pivot, _right_pivot, _mid_pivot
 
 
 class TestQuickSort(unittest.TestCase):
@@ -22,12 +22,31 @@ class TestQuickSort(unittest.TestCase):
             ('abc', None)
         )
         for arg, expected in bad_data:
-            self.assertEqual(qsort(arg), expected)
+            with self.assertRaises(ValueError):
+                self.assertEqual(qsort(arg), expected)
 
-    def test_valid_values(self):
+    def test_valid_values_with_default_rand_pivot(self):
         data = self.gen_data(8)
         for d in data:
             qsort(d)
+            self.assertEqual(d, sorted(d))
+
+    def test_valid_values_with_left_pivot(self):
+        data = self.gen_data(8)
+        for d in data:
+            qsort(d, choose_pivot=_left_pivot)
+            self.assertEqual(d, sorted(d))
+
+    def test_valid_values_with_right_pivot(self):
+        data = self.gen_data(8)
+        for d in data:
+            qsort(d, choose_pivot=_right_pivot)
+            self.assertEqual(d, sorted(d))
+
+    def test_valid_values_with_mid_pivot(self):
+        data = self.gen_data(8)
+        for d in data:
+            qsort(d, choose_pivot=_mid_pivot)
             self.assertEqual(d, sorted(d))
 
 
