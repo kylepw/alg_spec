@@ -19,27 +19,26 @@ def _right_pivot(low, high, array=None):
     """Return rightmost index."""
     return high - 1
 
+
 def _mid_pivot(low, high, array):
     """Return 'median of three' values."""
-    size = len(array[low:high])
-    if size < 3:
-        if array[low] <= array[high - 1]:
-            return low
-        else:
-            return high - 1
-
-    if size % 2 == 1:
-        mid = size // 2
+    if (high - low) % 2 == 0:
+        mid = low + (high - low) // 2 - 1
     else:
-        mid = (size // 2) - 1
+        mid = low + (high - low) // 2
 
-    if (array[low] <= array[mid] <= array[high - 1]) or (array[high - 1] <= array[mid] <= array[low]):
-        return mid
-    elif (array[mid] <= array[low] <= array[high - 1]) or (array[high - 1] <= array[low] <= array[mid]):
-        return low
+    if (array[mid] <= array[low] <= array[high - 1]) or (
+        array[high - 1] <= array[low] <= array[mid]
+    ):
+        mindex = low
+    elif (array[low] <= array[mid] <= array[high - 1]) or (
+        array[high - 1] <= array[mid] <= array[low]
+    ):
+        mindex = mid
     else:
-        return high - 1
+        mindex = high - 1
 
+    return mindex
 
 
 def _partition(array, low, high, pindex):
@@ -80,9 +79,14 @@ def qsort(array, low=None, high=None, choose_pivot=None):
         choose_pivot = _rand_pivot
     if low < high:
         pindex = _partition(array, low, high, choose_pivot(low, high, array))
-        return high - low - 1 + qsort(array, low, pindex, choose_pivot) + qsort(array, pindex + 1, high, choose_pivot)
+        return (
+            high
+            - low
+            - 1
+            + qsort(array, low, pindex, choose_pivot)
+            + qsort(array, pindex + 1, high, choose_pivot)
+        )
     return 0
-
 
 
 def get_parser():
@@ -99,7 +103,12 @@ def main():
     try:
         with open(args['filename']) as f:
             values = [int(line) for line in f.readlines() if line.strip() != '']
-        for title, pivot in (('left:', _left_pivot), ('right:', _right_pivot), ('random:', _rand_pivot), ('mid:', _mid_pivot)):
+        for title, pivot in (
+            ('left:', _left_pivot),
+            ('right:', _right_pivot),
+            ('random:', _rand_pivot),
+            ('mid:', _mid_pivot),
+        ):
             copy = values[:]
             print(title, qsort(copy, choose_pivot=pivot))
     except IOError:
