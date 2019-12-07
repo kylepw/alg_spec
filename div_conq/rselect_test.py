@@ -14,15 +14,6 @@ class TestRSelect(unittest.TestCase):
             data.append((d, i))
         return data
 
-    """ def test_bad_values(self):
-        bad_data = (
-            (None, None),
-            ((1, 1), None),
-            (('abc', 1), None)
-        )
-        for *args, expected in bad_data:
-            self.assertEqual(rs(*args), expected) """
-
     def test_valid_values(self):
         data = self.gen_data(8)
         for args in data:
