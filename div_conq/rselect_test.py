@@ -10,8 +10,8 @@ class TestRSelect(unittest.TestCase):
             d = []
             for _ in range(x):
                 d.append(randrange(-100, 1000))
-            indice = randrange(1, len(d))
-            data.append((d, indice))
+            i = randrange(1, len(d))
+            data.append((d, i))
         return data
 
     """ def test_bad_values(self):
@@ -26,8 +26,11 @@ class TestRSelect(unittest.TestCase):
     def test_valid_values(self):
         data = self.gen_data(8)
         for args in data:
+            print(args)
             array, i = args
-            self.assertEqual(rs(array, i), sorted(array)[i - 1])
+            expected = array[:]
+            print(sorted(expected)[i - 1])
+            self.assertEqual(rs(array, i), sorted(expected)[i - 1])
 
 
 if __name__ == '__main__':
