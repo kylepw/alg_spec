@@ -4,7 +4,7 @@ import unittest
 
 class TestRSelect(unittest.TestCase):
     def gen_data(self, n):
-        """Return list of n-lists of 1 through n -1 random integers."""
+        """Return list of n-tuples (list of 1 through n -1 random integers, index)"""
         data = []
         for x in range(2, n):
             d = []
