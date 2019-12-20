@@ -18,23 +18,27 @@ def ucc(graph):
 
         Examples:
         >>> ucc(graph)
+        {1: ['A', 'B', 'C', 'E', 'D', 'F', 'G'], 2: ['H', 'I', 'J'], 3: ['K']}
     """
-    q = []
     visited = []
-    # Mark each vertex in a component.
+    # Group each vertex with a component.
     components = {}
+    # Component marker
+    num_cc = 0
     for v in graph:
         if v not in visited:
-            s = v
-            components[s] = []
-            q.append(v)
-        while q:
-            current = q.pop(0)
-            for a in graph[current]:
-                if a not in visited:
-                    visited.append(a)
-                    q.append(a)
-                    components[s].append(current)
+            num_cc += 1
+            components[num_cc] = [v]
+            # BFS
+            q = [v]
+            visited.append(v)
+            while q:
+                current = q.pop(0)
+                for a in graph[current]:
+                    if a not in visited:
+                        visited.append(a)
+                        q.append(a)
+                        components[num_cc].append(a)
     return components
 
 
