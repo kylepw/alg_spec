@@ -7,6 +7,7 @@ def bfs(graph, value, start=None):
     """Breadth-first search
 
         graph (dic): keys are vertices, values are lists of adjacent vertices
+        value: node value to search for
         start: node to start search from
 
         Return (bool): whether `value` is found or not.
