@@ -1,4 +1,4 @@
-"""Topical sort implementation."""
+"""Topological sort implementation."""
 
 graph = {
     'A': ['B', 'D'],
@@ -9,6 +9,14 @@ graph = {
     'F': [],
 }
 
+cycle_graph = {
+    'A': ['B'],
+    'B':['C'],
+    'C': ['D'],
+    'D': ['A'],
+}
+
+# Track of current topological value
 curr_tval = None
 
 def dfs_topo(graph: dict, start, visited: dict):
@@ -42,7 +50,7 @@ def ts(graph: dict, start):
             dict of visited vertices and assigned topological values. If error, None.
 
         Examples:
-            >>> ts(graph)
+            >>> ts(graph, 'A')
             {'A': 1, 'B': 4, 'C': 5, 'F': 6, 'D': 2, 'E': 3}
     """
     if not graph or not start or start not in graph:
@@ -56,3 +64,4 @@ def ts(graph: dict, start):
 
 if __name__ == '__main__':
     print(ts(graph, 'A'))
+    print(ts(cycle_graph, 'A'))
