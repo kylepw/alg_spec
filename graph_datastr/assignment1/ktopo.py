@@ -3,46 +3,52 @@
 # Track of current topological value
 curr_tval = None
 
-def dfs_topo(graph: dict, start, visited: dict):
-    """Labels graph vertices with topological values in REVERSE ORDER.
+
+def _dfs_topo(graph: list, start, visited: list, f: list):
+    """DFS for finding strongly connected components.
 
         Args:
-            graph: keys are vertices, values are lists of adjacent vertices
-            start: node to start search from
-            visited: visited nodes (keys) and topological values (values)
+            graph: indices are vertices, values are lists of adjacent vertices
+            start: vertex to start search from
+            visited: list of visited vertices
+            f: vertices (indices) and their topological order (value)
     """
-    global curr_tval
-    if not graph or not start or start not in graph:
+    if not graph:
         return
-    if curr_tval is None:
-        curr_tval = len(graph)
-    # Reverse
-    tails = graph[start]
-    visited[start] = None
-    for t in tails:
-        if t not in visited:
-            visited[t] = None
-        for adj in graph[t]:
-            if adj not in visited:
-                dfs_topo(graph, adj, visited)
-        visited[t] = curr_tval
-        curr_tval -= 1
-    visited[start] = curr_tval
+    global curr_tval
+    visited.append(start)
+    print(graph, start)
+    for adj in graph[start]:
+        if adj not in visited:
+            _dfs_topo(graph, adj, visited, f)
+    curr_tval -= 1
+    f[curr_tval] = start
 
 
-def rts(graph: dict, start):
-    """Reverse a DAG (directed acyclic graph) and sort topological ordering.
+def ts(graph: list) -> list:
+    """Sort topical ordering of a DAG (directed acyclic graph).
 
         Args:
-            graph: a DAG with a vertex (key) and list of outgoing edges (value).
+            graph: a DAG with a vertex (index) and list of outgoing edges (value).
 
         Returns:
-            dict of visited vertices and assigned topological values. If error, None.
+            list of visited vertices in topological order (indices). If error, None.
+
+        Examples:
+            >>> ts([ 0, [2, 4], [3], [6], [5], [6], [] ])
+            [1, 4, 5, 2, 3, 6]
     """
-    if not graph or not start or start not in graph:
+    if not graph:
         return
-    visited = {}
-    for v in graph:
+
+    global curr_tval
+    # `graph` has nothing (0) in zero index
+    curr_tval = len(graph) - 1
+    f = [0] * (len(graph) - 1)
+    visited = []
+    for v in range(1, len(graph)):
         if v not in visited:
-            dfs_topo(graph, v, visited)
-    return visited
+            _dfs_topo(graph, v, visited, f)
+    # Reset
+    curr_tval = None
+    return f
