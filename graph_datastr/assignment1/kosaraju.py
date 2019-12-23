@@ -1,35 +1,17 @@
 """Kosaraju implementation."""
-from ktopo import ts
 import argparse
 import os
 
-# SCC label
-num_scc = None
 
-def dfs_scc(graph: dict, start, visited: list, scc: list):
-    """Iterative DFS for finding strongly connected components.
+# vertex labels range
+NUM_VERT = 875715
+#NUM_VERT = 6
 
-        Args:
-            graph: keys are vertices, values are lists of adjacent vertices
-            target: node value to search for
-            start: node to start search from
-            visited: list of visited vertices
-            scc: vertices (indices) and their component label (value)
-    """
-    if not graph:
-        return
-    global num_scc
-    stack = [start]
-    while stack:
-        v = stack.pop()
-        if v not in visited:
-            visited.append(v)
-            scc[v] = num_scc
-            for adj in graph[v]:
-                stack.append(adj)
+# Track of current topological value
+curr_tval = None
 
 
-def load_edges(path: str) -> dict:
+def load_edges(path: str):
     """Convert text file with two integers per line to list of edges.
 
         Args:
@@ -37,81 +19,82 @@ def load_edges(path: str) -> dict:
 
         Returns:
             List of directed edges (tuples)
-
-        Raises:
-            IOError if file not found or invalid data.
     """
-    try:
-        with open(path) as f:
-            edges = [tuple(v.strip().split()[:2]) for v in f.readlines() if len(v) > 1]
-            edges = [(int(x), int(y)) for x, y in edges]
-    except IOError:
-        raise IOError(f'{path} does not exist.')
-    except ValueError:
-        raise ValueError('Invalid file. Must contain two vertices per line.')
+    global NUM_VERT
+    graph = [[] for i in range(NUM_VERT)]
+    re_graph = [[] for i in range(NUM_VERT)]
+    with open(path) as f:
+        for line in f:
+            edges = line.split()
+            graph[int(edges[0])].append(int(edges[1]))
+            re_graph[int(edges[1])].append(int(edges[0]))
 
-    return edges
+    return graph, re_graph
 
 
-def reverse_edges(edges: list) -> list:
-    """Reverse list of edges (x, y) to (y, x).
+def ts(graph: list) -> list:
+    """Sort topical ordering via DFS of a DAG (directed acyclic graph).
 
         Args:
-            List of directed edges (x, y)
+            graph: a DAG with a vertex (index) and list of outgoing edges (value).
+            stack: keep track of DFS stack
 
         Returns:
-            List of reversed directed edges (y, x)
+            list of visited vertices in topological order (indices). If error, None.
     """
-    return [(y, x) for x, y in edges]
+    if not graph:
+        return
+    global NUM_VERT
+    visited = [False for i in range(NUM_VERT)]
+    order = []
+    order_added = [False for i in range(NUM_VERT)]
+
+    for start in range(1, NUM_VERT):
+        if visited[start] is not True:
+            stack = [start]
+            tmp_stack = []
+            while stack:
+                s = stack.pop()
+                if order_added[s] is not True:
+                    tmp_stack.append(s)
+                    order_added[s] = True
+                if visited[s] is not True:
+                    stack.extend(graph[s])
+                    visited[s] = True
+            while tmp_stack:
+                order.append(tmp_stack.pop())
+    return order
 
 
-def edges_to_list(edges: list) -> list:
-    """Convert list of edges to list of vertices/outgoing adjacent vertices.
+def dfs_scc(graph: dict, order: list):
+    """Iterative DFS for finding strongly connected components.
 
         Args:
-            edges: list of directed edges (tuples)
-
-        Returns:
-            vertices/list of outgoing adjacent vertices (index/value)
+            graph: keys are vertices, values are lists of adjacent vertices
+            target: node value to search for
+            order: vertices in topological order
     """
-    # graph will have blank  in index 0 (vertices numbered from 1)
-    count = []
-    for x, y in edges:
-        if x not in count:
-            count.append(x)
-        if y not in count:
-            count.append(y)
-    graph = [0] * (len(count) + 1)
-    for tail, head in edges:
-        if graph[tail] == 0:
-            graph[tail] = []
-        if graph[head] == 0:
-            graph[head] = []
-        if head not in graph[tail]:
-            graph[tail].append(head)
-    return graph
+    if not graph:
+        return
+    global NUM_VERT
+    # Index is the scc leader and the value is the size of the scc.
+    scc = [0 for i in range(NUM_VERT)]
+    visited = [False for i in range(NUM_VERT)]
 
+    order.reverse()
+    # Component label
+    for start in order:
+        if visited[start] is not True:
+            stack = [start]
+            while stack:
+                s = stack.pop()
+                if visited[s] is not True:
+                    scc[start] += 1
+                    for v in graph[s]:
+                        stack.append(v)
+                    visited[s] = True
 
-def top_scc(scc: list, n) -> list:
-    """Return sizes of n largest SCCs.
-
-        Args:
-            scc: vertices (indices) and component labels (values)
-            n: number of SCC sizes to return
-
-        Returns:
-            sizes of n largest SCCs
-    """
-    result = {}
-    for c in scc:
-        if c != 0:
-            result[c] = result[c] + 1 if c in result else 1
-    result = list(result.values())
-    result.sort(reverse=True)
-    result = result[:5]
-    while len(result) < 5:
-        result.append(0)
-    return result[:5]
+    return scc
 
 
 def get_parser():
@@ -125,35 +108,22 @@ def get_parser():
 
 
 def main():
-    global num_scc
+    global NUM_VERT
 
     parser = get_parser()
     args = vars(parser.parse_args())
 
-    edges = load_edges(args['filename'])
-    re_edges = reverse_edges(edges)
-
-    # Original and reversed graphs
-    graph = edges_to_list(edges)
-    re_graph = edges_to_list(re_edges)
+    graph, re_graph = load_edges(args['filename'])
 
     # Compute topological ordering
-    t_vals = ts(re_graph)
+    order = ts(re_graph)
 
-    # Find SCCs in reverse topological order
-    if num_scc is None:
-        num_scc = 0
-    scc = [0] * (len(t_vals) + 1)
-    visited = []
-    for v in t_vals:
-        if v not in visited:
-            num_scc += 1
-            dfs_scc(graph, v, visited, scc)
-    # Reset
-    num_scc = None
+    # Label SCCs in reverse topological order
+    scc = dfs_scc(graph, order)
 
-
-    print(top_scc(scc, 5))
+    # Top 5 largest SCCS
+    scc.sort(reverse=True)
+    print(scc[:5])
 
 
 if __name__ == '__main__':
