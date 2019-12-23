@@ -1,94 +1,115 @@
-"""Kosaraju implementation."""
+"""
+    kosaraju.py
+    ~~~~~~~~~~~
+
+    Kosaraju implementation that reads a file of edges (two spaced integers
+    per line).
+
+    Usage:
+        python kosaraju.py filename.txt
+
+"""
 import argparse
-import os
 
 
-# vertex labels range
-NUM_VERT = 875715
-#NUM_VERT = 6
-
-# Track of current topological value
-curr_tval = None
-
-
-def load_edges(path: str):
-    """Convert text file with two integers per line to list of edges.
+def load_edges(path: str) -> (list, int):
+    """Convert text file with two integers per line to list of edges
 
         Args:
             path: file path
 
         Returns:
-            List of directed edges (tuples)
+            List of edges (tuples), max vertex number plus one
     """
-    global NUM_VERT
-    graph = [[] for i in range(NUM_VERT)]
-    re_graph = [[] for i in range(NUM_VERT)]
+    edges = []
+    MAX_VERT = -1
+
     with open(path) as f:
         for line in f:
-            edges = line.split()
-            graph[int(edges[0])].append(int(edges[1]))
-            re_graph[int(edges[1])].append(int(edges[0]))
+            edge = line.split()
+            if len(edge) == 2 and edge[0] != '#':
+                x, y = int(edge[0]), int(edge[1])
+                MAX_VERT = max(MAX_VERT, x, y)
+                edges.append((x, y))
+
+    return edges, MAX_VERT + 1
+
+
+def create_graphs(edges: list, MAX_VERT: int):
+    """Convert text file with two integers per line to list of edges.
+
+        Args:
+            edges: list of edges (tuples)
+            MAX_VERT: max vertex number in graph plus one
+
+        Returns:
+            Graph and reversed version
+    """
+    graph = [[] for i in range(MAX_VERT)]
+    re_graph = [[] for i in range(MAX_VERT)]
+
+    for x, y in edges:
+        graph[x].append(y)
+        re_graph[y].append(x)
 
     return graph, re_graph
 
 
-def ts(graph: list) -> list:
+def ts(graph: list, MAX_VERT: int) -> list:
     """Sort topical ordering via DFS of a DAG (directed acyclic graph).
 
         Args:
             graph: a DAG with a vertex (index) and list of outgoing edges (value).
-            stack: keep track of DFS stack
+            MAX_VERT: max vertex number in graph plus one
 
         Returns:
             list of visited vertices in topological order (indices). If error, None.
     """
     if not graph:
         return
-    global NUM_VERT
-    visited = [False for i in range(NUM_VERT)]
+    visited = [False for i in range(MAX_VERT)]
     order = []
-    order_added = [False for i in range(NUM_VERT)]
 
-    for start in range(1, NUM_VERT):
-        if visited[start] is not True:
+    for start in range(1, MAX_VERT):
+        if visited[start] is False:
             stack = [start]
             tmp_stack = []
             while stack:
                 s = stack.pop()
-                if order_added[s] is not True:
-                    tmp_stack.append(s)
-                    order_added[s] = True
-                if visited[s] is not True:
+                if visited[s] is False:
                     stack.extend(graph[s])
+                    tmp_stack.append(s)
                     visited[s] = True
             while tmp_stack:
                 order.append(tmp_stack.pop())
+
     return order
 
 
-def dfs_scc(graph: dict, order: list):
+def dfs_scc(graph: dict, order: list, MAX_VERT: int) -> list:
     """Iterative DFS for finding strongly connected components.
 
         Args:
             graph: keys are vertices, values are lists of adjacent vertices
-            target: node value to search for
             order: vertices in topological order
+            MAX_VERT: max vertex number in graph plus one
+
+        Returns:
+            List of SCCs (indices) and number of vertices (values)
     """
     if not graph:
         return
-    global NUM_VERT
-    # Index is the scc leader and the value is the size of the scc.
-    scc = [0 for i in range(NUM_VERT)]
-    visited = [False for i in range(NUM_VERT)]
+    # Index is SCC leader and value the number of vertices in SCC.
+    scc = [0 for i in range(MAX_VERT)]
+    visited = [False for i in range(MAX_VERT)]
 
     order.reverse()
-    # Component label
     for start in order:
-        if visited[start] is not True:
+        if visited[start] is False:
             stack = [start]
             while stack:
                 s = stack.pop()
-                if visited[s] is not True:
+                if visited[s] is False:
                     scc[start] += 1
                     for v in graph[s]:
                         stack.append(v)
@@ -108,20 +129,19 @@ def get_parser():
 
 
 def main():
-    global NUM_VERT
-
     parser = get_parser()
     args = vars(parser.parse_args())
 
-    graph, re_graph = load_edges(args['filename'])
+    edges, MAX_VERT = load_edges(args['filename'])
+    graph, re_graph = create_graphs(edges, MAX_VERT)
 
-    # Compute topological ordering
-    order = ts(re_graph)
+    # Topological order
+    order = ts(re_graph, MAX_VERT)
 
     # Label SCCs in reverse topological order
-    scc = dfs_scc(graph, order)
+    scc = dfs_scc(graph, order, MAX_VERT)
 
-    # Top 5 largest SCCS
+    # Top 5 largest SCCs
     scc.sort(reverse=True)
     print(scc[:5])
 

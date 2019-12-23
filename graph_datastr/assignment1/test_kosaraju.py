@@ -15,17 +15,7 @@ class TestLoadEdges(unittest.TestCase):
             8 6
             6 7
             7 8'''
-        expected = [
-            ('1', '2'),
-            ('2', '3'),
-            ('3', '1'),
-            ('3', '4'),
-            ('5', '4'),
-            ('6', '4'),
-            ('8', '6'),
-            ('6', '7'),
-            ('7', '8'),
-        ]
+        expected = [('1', '2'), ('2', '3'), ('3', '1')]
         with patch('kosaraju.open', mock_open(read_data=data)):
             self.assertEqual(kosaraju.load_edges(data), expected)
 
