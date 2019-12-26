@@ -32,10 +32,64 @@ import argparse
 
 
 def load_data(filename: str) -> list:
-    """Load adjacency list of vertices from file."""
-    graph = []
+    """Load adjacency list of vertices from file.
+
+        Args:
+            filename: name of file with edge data in ascending order
+        Returns:
+            [(head, edge_val), ...] where each index represents a vertex tail
+    """
+    with open(filename) as f:
+        data = []
+        MAX_VERT = -1
+        for line in f:
+            v = line.split()
+            if v and v[0].isdigit():
+                v = [tuple(n.split(',')) if not n.isdigit() else int(n) for n in v]
+                MAX_VERT = max(MAX_VERT, v[0])
+                data.append(v)
+        # Plus one so graph[MAX_VERT] works
+        graph = [[] for i in range(MAX_VERT + 1)]
+        for v in data:
+            graph[v[0]] = [(int(head), int(weight)) for head, weight in v[1:]]
 
     return graph
+
+
+def dsp(graph: list, s, t) -> int:
+    """
+        Find shortest path from two vertices via Dijkstra's shortest-path algorithm.
+
+        Args:
+            s: source vertex
+            t: the target vertex
+
+        Returns:
+            Shortest path from `s` to `t` vertices
+    """
+    if s == t:
+        return 0
+
+    VERT_NUM = len(graph) - 1
+
+    # Vertices seen so far
+    X = [s]
+    # Shortest path values (i.e. shortest path to vertex 4 is a[4])
+    A = [1000000 for i in range(len(graph))]
+    A[s] = 0
+
+    while len(X) < VERT_NUM:
+        V, W, W_dist = -1, -1, -1
+        for v in X:
+            for w, dist in [(w, dist) for w, dist in graph[v] if w not in X]:
+                if V == -1 or A[v] + dist < W_dist:
+                    V, W, W_dist = v, w, (A[v] + dist)
+        if V != -1:
+            X.append(W)
+            A[W] = W_dist
+            if W == t:
+                return A[W]
+    return A[t]
 
 
 def get_parser():
@@ -56,7 +110,9 @@ def main():
 
     graph = load_data(args['filename'])
 
-    print('Goodbye!')
+    # 2599,2610,2947,2052,2367,2399,2029,2442,2505,3068
+    vertices = (7, 37, 59, 82, 99, 115, 133, 165, 188, 197)
+    print(','.join([str(dsp(graph, 1, v)) for v in vertices]))
 
 
 if __name__ == '__main__':
