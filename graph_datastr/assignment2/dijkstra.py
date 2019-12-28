@@ -29,6 +29,7 @@
 
 """
 import argparse
+from minheap import MinHeap
 
 
 def load_data(filename: str) -> list:
@@ -56,9 +57,10 @@ def load_data(filename: str) -> list:
     return graph
 
 
-def dsp(graph: list, s, t) -> int:
+def dsp_non_heap(graph: list, s, t) -> int:
     """
-        Find shortest path from two vertices via Dijkstra's shortest-path algorithm.
+        Find shortest path from two vertices via Dijkstra's shortest-path algorithm
+        without a min-heap.
 
         Args:
             s: source vertex
@@ -92,6 +94,41 @@ def dsp(graph: list, s, t) -> int:
     return A[t]
 
 
+def dsp(graph: list, s, t) -> int:
+    """
+        Find shortest path from two vertices via Dijkstra's shortest-path algorithm.
+
+        Args:
+            s: source vertex
+            t: the target vertex
+
+        Returns:
+            Shortest path from `s` to `t` vertices
+    """
+    if s == t:
+        return 0
+
+    # Vertices seen so far
+    visited = []
+    A = [[] for i in range(len(graph))]
+    heap = MinHeap([(0, s)])
+
+    while not heap.is_empty():
+        dist, u = heap.pop()
+        if u in visited:
+            continue
+        visited.append(u)
+        A[u] = dist
+        if t == u:
+            return A[u]
+        for v, d in graph[u]:
+            if v in visited:
+                continue
+            heap.insert((dist + d, v))
+            A[v] = dist + d
+    return A[t]
+
+
 def get_parser():
     parser = argparse.ArgumentParser(
         description='Return shortest-distances from vertex 1 to shortest-path distances to vertices, in order: 7,37,59,82,99,115,133,165,188,197'
@@ -113,6 +150,8 @@ def main():
     # 2599,2610,2947,2052,2367,2399,2029,2442,2505,3068
     vertices = (7, 37, 59, 82, 99, 115, 133, 165, 188, 197)
     print(','.join([str(dsp(graph, 1, v)) for v in vertices]))
+    #print(','.join([str(dsp_non_heap(graph, 1, v)) for v in vertices]))
+
 
 
 if __name__ == '__main__':
