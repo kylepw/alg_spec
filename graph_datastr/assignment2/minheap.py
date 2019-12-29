@@ -1,7 +1,9 @@
 """Min-heap implementation."""
 
+
 class MinHeap:
     """Allows heap of single values or (value, label) tuples."""
+
     def __init__(self, values=None):
         self.h = []
         # Track current index of labels.
@@ -29,10 +31,10 @@ class MinHeap:
         return value
 
     def _parent_index(self, index):
-        if len(self.h) % 2 == 0:
-            return index // 2
+        if len(self.h) % 2:
+            return (index - 1) // 2
         else:
-            return (index // 2) - 1
+            return index // 2
 
     def _left_child_index(self, index):
         return (index * 2) + 1
@@ -60,7 +62,10 @@ class MinHeap:
         while p >= 0 and self._val(self.h[p]) > self._val(self.h[i]):
             # Update label indices.
             self.h[i], self.h[p] = self.h[p], self.h[i]
-            self.index[self._label(self.h[i])], self.index[self._label(self.h[p])] = self.index[self._label(self.h[p])], self.index[self._label(self.h[i])]
+            self.index[self._label(self.h[i])], self.index[self._label(self.h[p])] = (
+                self.index[self._label(self.h[p])],
+                self.index[self._label(self.h[i])],
+            )
             i = p
             p = self._parent_index(i)
         return i
@@ -77,12 +82,17 @@ class MinHeap:
 
             if l < len(self.h) and self._val(self.h[i]) > self._val(self.h[l]):
                 smallest = l
-            if r < len (self.h) and self._val(self.h[smallest]) > self._val(self.h[r]):
+            if r < len(self.h) and self._val(self.h[smallest]) > self._val(self.h[r]):
                 smallest = r
 
             if smallest != i:
                 # Update label indices.
-                self.index[self._label(self.h[i])], self.index[self._label(self.h[smallest])] = self.index[self._label(self.h[smallest])], self.index[self._label(self.h[i])]
+                self.index[self._label(self.h[i])], self.index[
+                    self._label(self.h[smallest])
+                ] = (
+                    self.index[self._label(self.h[smallest])],
+                    self.index[self._label(self.h[i])],
+                )
                 self.h[i], self.h[smallest] = self.h[smallest], self.h[i]
                 smallest = i
             else:
@@ -113,7 +123,7 @@ class MinHeap:
         return True
 
     def pop(self):
-        #print(min([v for v, _ in self.h]), self.h[0])
+        # print(min([v for v, _ in self.h]), self.h[0])
         if len(self.h) == 0:
             return None
         elif len(self.h) == 1:

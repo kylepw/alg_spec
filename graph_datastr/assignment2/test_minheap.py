@@ -68,16 +68,34 @@ class TestMinHeap(unittest.TestCase):
         self.assertIsNone(h.pop())
         self.assertEqual(h.h, [])
 
+
 class TestMinHeapSort(unittest.TestCase):
     def setUp(self):
-        self.h = MinHeap(values=[(4, 101), (12, 9), (13, 5), (2, 1), (6, 1001), (5, 45), (10, 121)])
+        self.h = MinHeap(
+            values=[(4, 101), (12, 9), (13, 5), (2, 1), (6, 1001), (5, 45), (10, 121)]
+        )
 
     def test_correct_order(self):
-        self.assertEqual(self.h.h, [(2, 1), (4, 101), (5, 45), (12, 9), (6, 1001), (13, 5), (10, 121)])
+        self.assertEqual(
+            self.h.h,
+            [(2, 1), (4, 101), (5, 45), (12, 9), (6, 1001), (13, 5), (10, 121)],
+        )
 
     def test_insert_99_1(self):
         self.assertEqual(self.h.insert((1, 99)), 0)
-        self.assertEqual(self.h.h, [(1, 99), (2, 1), (5, 45), (4, 101), (6, 1001), (13, 5), (10, 121), (12, 9)])
+        self.assertEqual(
+            self.h.h,
+            [
+                (1, 99),
+                (2, 1),
+                (5, 45),
+                (4, 101),
+                (6, 1001),
+                (13, 5),
+                (10, 121),
+                (12, 9),
+            ],
+        )
 
     def test_pop(self):
         self.assertEqual(len(self.h.h), 7)
@@ -87,6 +105,7 @@ class TestMinHeapSort(unittest.TestCase):
         self.assertEqual(self.h.pop(), (6, 1001))
         self.assertEqual(len(self.h.h), 3)
         self.assertEqual(self.h.h, [(10, 121), (12, 9), (13, 5)])
+
 
 if __name__ == '__main__':
     unittest.main()

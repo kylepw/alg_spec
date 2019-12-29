@@ -122,6 +122,7 @@ def dsp(graph: list, s, t) -> int:
             if v not in visited:
                 heap.update_min(dist + d, v)
 
+
 def get_parser():
     parser = argparse.ArgumentParser(
         description='Return shortest-distances from vertex 1 to shortest-path distances to vertices, in order: 7,37,59,82,99,115,133,165,188,197'
@@ -142,8 +143,9 @@ def main():
 
     # 2599,2610,2947,2052,2367,2399,2029,2442,2505,3068
     vertices = (7, 37, 59, 82, 99, 115, 133, 165, 188, 197)
-    print(','.join([str(dsp(graph, 1, v)) for v in vertices]))
     #print(','.join([str(dsp_non_heap(graph, 1, v)) for v in vertices]))
+    print(','.join([str(dsp(graph, 1, v)) for v in vertices]))
+
 
 if __name__ == '__main__':
     main()
