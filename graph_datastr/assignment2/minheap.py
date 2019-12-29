@@ -5,6 +5,8 @@ class MinHeap:
     """Allows heap of single values or (value, label) tuples."""
     def __init__(self, values=None):
         self.h = []
+        # Track current index of labels.
+        self.index = {}
         if values is not None:
             self.heapify(values)
 
@@ -25,6 +27,11 @@ class MinHeap:
             return found[0]
         else:
             return None
+
+    def _label(self, value):
+        if isinstance(value, tuple) and len(value) == 2:
+            return value[1]
+        return value
 
     def _val(self, value):
         if isinstance(value, tuple) and len(value) == 2:
@@ -59,6 +66,8 @@ class MinHeap:
 
         while p >= 0 and self._val(self.h[p]) > self._val(self.h[i]):
             self.h[i], self.h[p] = self.h[p], self.h[i]
+            # Update label indices.
+            self.index[self._label(self.h[i])], self.index[self._label(self.h[p])] = self.index[self._label(self.h[p])], self.index[self._label(self.h[i])]
             i = p
             p = self._parent_index(i)
         return i
@@ -80,39 +89,62 @@ class MinHeap:
 
             if smallest != i:
                 self.h[i], self.h[smallest] = self.h[smallest], self.h[i]
+                # Update label indices.
+                self.index[self._label(self.h[i])], self.index[self._label(self.h[smallest])] = self.index[self._label(self.h[smallest])], self.index[self._label(self.h[i])]
                 smallest = i
             else:
                 return i
 
     def insert(self, value):
-        if len(self.h) == 0:
-            self.h.append(value)
-            return 0
+        if isinstance(value, tuple) and len(value) == 2:
+            label = value[1]
+        else:
+            label = value
+
         self.h.append(value)
+
+        # Add index.
+        self.index[label] = len(self.h) - 1
+
         return self._sift_up()
 
-    def pop(self, value=None):
+    def update_min(self, value, label):
+        if label not in self.index:
+            return False
+        i = self.index[label]
+        current_val = self._val(self.h[i])
+        if value < current_val:
+            self.h[i] = (value, label)
+        return True
+
+
+
+    def pop(self, label=None):
+        if label is not None and label not in self.index:
+            return None
         # Pop last element by default
         if len(self.h) == 0:
             return None
         elif len(self.h) == 1:
+            self.index = {}
             return self.h.pop()
 
-        if value is None:
+        if label is None:
+            label = self._label(self.h[-1])
             i = 0
             value = self.h[0]
         else:
-            value = self._full_val(value)
-            # Value not in heap
-            if value is None:
-                return None
-            i = self.h.index(value)
+            i = self.index[label]
+            value = self.h[i]
+
+        del self.index[label]
 
         # Last element
         if i == len(self.h) - 1:
             return self.h.pop()
-        else:
-            self.h[i] = self.h.pop()
+
+        self.index[self._label(self.h[-1])] = i
+        self.h[i] = self.h.pop()
 
         if i == 0 or self._val(self.h[i]) > self._val(self.h[self._parent_index(i)]):
             self._sift_down(i)

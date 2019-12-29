@@ -4,8 +4,7 @@ import unittest
 
 class TestMinHeap(unittest.TestCase):
     def setUp(self):
-        self.h = MinHeap()
-        self.h.h = [2, 4, 5, 12, 13, 6, 10]
+        self.h = MinHeap(values=[2, 4, 5, 12, 13, 6, 10])
 
     def test_parent_index(self):
         self.assertLess(self.h._parent_index(0), 0)
@@ -114,7 +113,7 @@ class TestMinHeapSort(unittest.TestCase):
 
     def test_pop_2_1_val(self):
         self.assertEqual(len(self.h.h), 7)
-        self.assertEqual(self.h.pop((2, 1)), (2, 1))
+        self.assertEqual(self.h.pop((1)), (2, 1))
         self.assertEqual(len(self.h.h), 6)
         self.assertEqual(self.h.h, [(4, 101), (10, 121), (5, 45), (12, 9), (6, 1001), (13, 5)])
 
