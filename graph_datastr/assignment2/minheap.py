@@ -11,6 +11,9 @@ class MinHeap:
     def __contains__(self, value):
         return value in self.h
 
+    def __len__(self):
+        return len(self.h)
+
     def __repr__(self):
         return repr(self.h)
 
@@ -29,17 +32,13 @@ class MinHeap:
         return value
 
     def _parent_index(self, index):
-        return None if index == 0 else (index - 1) // 2
+        return (index - 1) // 2
 
     def _left_child_index(self, index):
-        lci = index * 2 + 1
-
-        return lci if lci < len(self.h) else None
+        return index * 2 + 1
 
     def _right_child_index(self, index):
-        rci = index * 2 + 2
-
-        return rci if rci < len(self.h) else None
+        return index * 2 + 2
 
     def heapify(self, values):
         self.h = []
@@ -55,53 +54,35 @@ class MinHeap:
     def _sift_up(self, i=None):
         if i is None:
             i = len(self.h) - 1
-        while i > 0 and self._val(self.h[i]) < self._val(self.h[self._parent_index(i)]):
-            p = self._parent_index(i)
+
+        p = self._parent_index(i)
+
+        while p >= 0 and self._val(self.h[p]) > self._val(self.h[i]):
             self.h[i], self.h[p] = self.h[p], self.h[i]
             i = p
+            p = self._parent_index(i)
         return i
-
-    def _go_left(self, i):
-        self.h[i], self.h[self._left_child_index(i)] = (
-        self.h[self._left_child_index(i)],
-        self.h[i],
-        )
-        return self._left_child_index(i)
-
-    def _go_right(self, i):
-        self.h[i], self.h[self._right_child_index(i)] = (
-        self.h[self._right_child_index(i)],
-        self.h[i],
-        )
-        return self._right_child_index(i)
 
     def _sift_down(self, i=None):
         if i is None:
             i = 0
 
-        while i < len(self.h) and (
-            (
-                self._left_child_index(i) is not None
-                and self._val(self.h[i]) > self._val(self.h[self._left_child_index(i)])
-            )
-            or (
-                self._right_child_index(i) is not None
-                and self._val(self.h[i]) > self._val(self.h[self._right_child_index(i)])
-            )
-        ):
-            if self._right_child_index(i) is not None and self._right_child_index(i) is not None:
-                if self._val(self.h[i]) <= self._val(self.h[self._left_child_index(i)]) and self._val(self.h[i]) <= self._val(self.h[self._right_child_index(i)]):
-                    break
-                if self._val(self.h[self._left_child_index(i)]) < self._val(self.h[self._right_child_index(i)]) and self._val(self.h[i]) > self._val(self.h[self._left_child_index(i)]):
-                    i = self._go_left(i)
-                elif self._val(self.h[self._right_child_index(i)]) < self._val(self.h[self._left_child_index(i)]) and self._val(self.h[i]) > self._val(self.h[self._right_child_index(i)]):
-                    i = self._go_right(i)
-            elif self._left_child_index(i) is not None and self._val(self.h[i]) > self._val(self.h[self._left_child_index(i)]):
-                i = self._go_left(i)
-            elif self._right_child_index(i) is not None and self._val(self.h[i]) > self._val(self.h[self._right_child_index(i)]):
-                i = self._go_right(i)
+        while True:
+            l = self._left_child_index(i)
+            r = self._right_child_index(i)
 
-        return i
+            smallest = i
+
+            if l < len(self.h) and self._val(self.h[i]) > self._val(self.h[l]):
+                smallest = l
+            elif r < len (self.h) and self._val(self.h[i]) > self._val(self.h[r]):
+                smallest = r
+
+            if smallest != i:
+                self.h[i], self.h[smallest] = self.h[smallest], self.h[i]
+                smallest = i
+            else:
+                return i
 
     def insert(self, value):
         if len(self.h) == 0:

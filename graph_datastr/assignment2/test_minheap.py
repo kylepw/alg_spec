@@ -8,22 +8,22 @@ class TestMinHeap(unittest.TestCase):
         self.h.h = [2, 4, 5, 12, 13, 6, 10]
 
     def test_parent_index(self):
-        self.assertIsNone(self.h._parent_index(0))
+        self.assertLess(self.h._parent_index(0), 0)
         self.assertEqual(self.h._parent_index(1), 0)
         self.assertEqual(self.h._parent_index(2), 0)
         self.assertEqual(self.h._parent_index(4), 1)
         self.assertEqual(self.h._parent_index(6), 2)
 
     def test_left_child_index(self):
-        self.assertIsNone(self.h._left_child_index(3))
-        self.assertIsNone(self.h._left_child_index(5))
+        self.assertGreaterEqual(self.h._left_child_index(3), len(self.h))
+        self.assertGreaterEqual(self.h._left_child_index(5), len(self.h))
         self.assertEqual(self.h._left_child_index(0), 1)
         self.assertEqual(self.h._left_child_index(1), 3)
         self.assertEqual(self.h._left_child_index(2), 5)
 
     def test_right_child_index(self):
-        self.assertIsNone(self.h._right_child_index(3))
-        self.assertIsNone(self.h._right_child_index(6))
+        self.assertGreaterEqual(self.h._right_child_index(3), len(self.h))
+        self.assertGreaterEqual(self.h._right_child_index(6), len(self.h))
         self.assertEqual(self.h._right_child_index(0), 2)
         self.assertEqual(self.h._right_child_index(1), 4)
         self.assertEqual(self.h._right_child_index(2), 6)
@@ -110,13 +110,13 @@ class TestMinHeapSort(unittest.TestCase):
         self.assertEqual(self.h.pop(), (5, 45))
         self.assertEqual(self.h.pop(), (6, 1001))
         self.assertEqual(len(self.h.h), 3)
-        self.assertEqual(self.h.h, [(10, 121), (12, 9), (13, 5)])
+        self.assertEqual(self.h.h, [(10, 121), (13, 5), (12, 9)])
 
     def test_pop_2_1_val(self):
         self.assertEqual(len(self.h.h), 7)
         self.assertEqual(self.h.pop((2, 1)), (2, 1))
         self.assertEqual(len(self.h.h), 6)
-        self.assertEqual(self.h.h, [(4, 101), (6, 1001), (5, 45), (12, 9), (10, 121), (13, 5)])
+        self.assertEqual(self.h.h, [(4, 101), (10, 121), (5, 45), (12, 9), (6, 1001), (13, 5)])
 
     def test_pop_label_101(self):
         self.assertEqual(len(self.h.h), 7)
