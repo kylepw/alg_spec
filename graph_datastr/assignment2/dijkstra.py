@@ -110,21 +110,17 @@ def dsp(graph: list, s, t) -> int:
 
     # Vertices seen so far
     visited = []
-    heap = MinHeap([(1000000, v) for v in range(1, len(graph))])
+    heap = MinHeap([(10000000, v) for v in range(1, len(graph))])
     heap.update_min(0, s)
 
     while not heap.is_empty():
         dist, u = heap.pop()
-        if u not in visited:
-            visited.append(u)
-            if t == u:
-                return dist
+        visited.append(u)
+        if u == t:
+            return dist
         for v, d in graph[u]:
-            if v in visited:
-                continue
-            heap.update_min(dist + d, v)
-    
-
+            if v not in visited:
+                heap.update_min(dist + d, v)
 
 def get_parser():
     parser = argparse.ArgumentParser(
@@ -148,8 +144,6 @@ def main():
     vertices = (7, 37, 59, 82, 99, 115, 133, 165, 188, 197)
     print(','.join([str(dsp(graph, 1, v)) for v in vertices]))
     #print(','.join([str(dsp_non_heap(graph, 1, v)) for v in vertices]))
-
-
 
 if __name__ == '__main__':
     main()

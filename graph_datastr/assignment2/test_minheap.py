@@ -56,8 +56,8 @@ class TestMinHeap(unittest.TestCase):
         self.assertEqual(self.h.h, [2, 3, 5, 4, 13, 6, 10, 12])
 
     def test_insert_10(self):
-        self.assertEqual(self.h.insert(10), 3)
-        self.assertEqual(self.h.h, [2, 4, 5, 10, 13, 6, 10, 12])
+        self.assertEqual(self.h.insert(9), 3)
+        self.assertEqual(self.h.h, [2, 4, 5, 9, 13, 6, 10, 12])
 
     def test_insert_15(self):
         self.assertEqual(self.h.insert(15), 7)
@@ -67,29 +67,6 @@ class TestMinHeap(unittest.TestCase):
         h = MinHeap()
         self.assertIsNone(h.pop())
         self.assertEqual(h.h, [])
-
-    def test_pop_value_not_in_heap(self):
-        before = self.h.h
-        self.assertIsNone(self.h.pop(20))
-        self.assertEqual(before, self.h.h)
-
-    def test_pop_2(self):
-        self.assertEqual(len(self.h.h), 7)
-        self.assertEqual(self.h.pop(2), 2)
-        self.assertEqual(len(self.h.h), 6)
-        self.assertEqual(self.h.h, [4, 10, 5, 12, 13, 6])
-
-    def test_pop_5(self):
-        self.assertEqual(len(self.h.h), 7)
-        self.assertEqual(self.h.pop(5), 5)
-        self.assertEqual(len(self.h.h), 6)
-        self.assertEqual(self.h.h, [2, 4, 6, 12, 13, 10])
-
-    def test_pop_10(self):
-        self.assertEqual(len(self.h.h), 7)
-        self.assertEqual(self.h.pop(10), 10)
-        self.assertEqual(len(self.h.h), 6)
-        self.assertEqual(self.h.h, [2, 4, 5, 12, 13, 6])
 
 class TestMinHeapSort(unittest.TestCase):
     def setUp(self):
@@ -109,19 +86,7 @@ class TestMinHeapSort(unittest.TestCase):
         self.assertEqual(self.h.pop(), (5, 45))
         self.assertEqual(self.h.pop(), (6, 1001))
         self.assertEqual(len(self.h.h), 3)
-        self.assertEqual(self.h.h, [(10, 121), (13, 5), (12, 9)])
-
-    def test_pop_2_1_val(self):
-        self.assertEqual(len(self.h.h), 7)
-        self.assertEqual(self.h.pop((1)), (2, 1))
-        self.assertEqual(len(self.h.h), 6)
-        self.assertEqual(self.h.h, [(4, 101), (10, 121), (5, 45), (12, 9), (6, 1001), (13, 5)])
-
-    def test_pop_label_101(self):
-        self.assertEqual(len(self.h.h), 7)
-        self.assertEqual(self.h.pop(101), (4, 101))
-        self.assertEqual(len(self.h.h), 6)
-        self.assertEqual(self.h.h, [(2, 1), (6, 1001), (5, 45), (12, 9), (10, 121), (13, 5)])
+        self.assertEqual(self.h.h, [(10, 121), (12, 9), (13, 5)])
 
 if __name__ == '__main__':
     unittest.main()
