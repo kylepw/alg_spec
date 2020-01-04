@@ -1,8 +1,51 @@
-"""Min-heap implementation."""
+"""Min-heap implementation.
+
+    Supported operations:
+        is_empty():         Check whether the heap is empty or not.
+        peek():             Return the current smallest heap element.
+        insert(value):      Insert element into heap.
+        pop():              Return smallest heap element and re-heapify heap.
+        update_min(v, l):   Update comparison value of an element in heap.
+
+    Note:
+        Elements can be tuples (value, label) which can be useful for tracking
+        comparison values of records such as node names i.e. (3, 'A').
+
+    Tests:
+    python -m doctest minheap.py
+    python -m unittest test_minheap.py
+
+"""
 
 
 class MinHeap:
-    """Allows heap of single values or (value, label) tuples."""
+    """MinHeap implementation.
+
+        Usage:
+            >>> h = MinHeap([10, 5, 2, 8, -1, 9])
+            >>> h.insert(3)
+            >>> h
+            [-1, 2, 3, 10, 8, 9, 5]
+            >>> ordered = []
+            >>> while not h.is_empty():
+            ...     ordered.append(h.pop())
+            >>> ordered
+            [-1, 2, 3, 5, 8, 9, 10]
+
+            >>> h = MinHeap([(10, 'J'), (5, 'E'), (2, 'B'), (8, 'H'), (9, 'I')])
+            >>> h.insert((1, 'A'))
+            >>> h
+            [(1, 'A'), (8, 'H'), (2, 'B'), (10, 'J'), (9, 'I'), (5, 'E')]
+            >>> h.update_min(7, 'I')
+            >>> h
+            [(1, 'A'), (7, 'I'), (2, 'B'), (10, 'J'), (8, 'H'), (5, 'E')]
+            >>> ordered = []
+            >>> while not h.is_empty():
+            ...     ordered.append(h.pop())
+            >>> ordered
+            [(1, 'A'), (2, 'B'), (5, 'E'), (7, 'I'), (8, 'H'), (10, 'J')]
+
+    """
 
     def __init__(self, values=None):
         self.h = []
@@ -31,10 +74,11 @@ class MinHeap:
         return value
 
     def _parent_index(self, index):
-        if len(self.h) % 2:
+        return (index - 1) // 2
+        """ if len(self.h) % 2:
             return (index - 1) // 2
         else:
-            return index // 2
+            return index // 2 """
 
     def _left_child_index(self, index):
         return (index * 2) + 1
@@ -96,8 +140,7 @@ class MinHeap:
                 self.h[i], self.h[smallest] = self.h[smallest], self.h[i]
                 smallest = i
             else:
-                break
-        return i
+                return i
 
     def insert(self, value):
         label = self._label(value)
@@ -110,7 +153,7 @@ class MinHeap:
         # Add index.
         self.index[label] = len(self.h) - 1
 
-        return self._sift_up()
+        self._sift_up()
 
     def update_min(self, value, label):
         if label not in self.index:
@@ -120,10 +163,8 @@ class MinHeap:
         if value < current_val:
             self.h[i] = (value, label)
         self._sift_up(i)
-        return True
 
     def pop(self):
-        # print(min([v for v, _ in self.h]), self.h[0])
         if len(self.h) == 0:
             return None
         elif len(self.h) == 1:
