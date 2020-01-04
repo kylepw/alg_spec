@@ -16,6 +16,67 @@ implementations of the algorithm.
 
 """
 import argparse
+from heapq import heapify, heappop, heappush, nlargest, nsmallest
+
+
+def get_medians(nums):
+    """Return medians from X0 to Xi for each i-th number."""
+
+    if len(nums) < 2:
+        return nums
+
+    # max heap
+    smaller = []
+
+    # min heap
+    bigger = []
+
+    medians = []
+
+    for x in nums:
+        if len(smaller) == 0 and len(bigger) == 0:
+            heappush(smaller, x)
+            medians.append(x)
+            continue
+
+        s = nlargest(1, smaller)[0]
+
+        # Insert into heap
+        if x <= s:
+            heappush(smaller, x)
+            s = nlargest(1, smaller)[0]
+        else:
+            heappush(bigger, x)
+
+        # Rebalance
+        if len(smaller) > len(bigger) + 1:
+            diff = len(smaller) - len(bigger)
+            for _ in range(diff - 1):
+                smaller.remove(s)
+                heappush(bigger, s)
+                s = nlargest(1, smaller)[0]
+        elif len(bigger) > len(smaller) + 1:
+            diff = len(bigger) - len(smaller)
+            for _ in range(diff - 1):
+                heappush(smaller, heappop(bigger))
+
+        # Append median
+        if len(smaller) >= len(bigger):
+            medians.extend(nlargest(1, smaller))
+        else:
+            medians.extend(nsmallest(1, bigger))
+
+    return medians
+
+
+def read_nums(filename):
+    try:
+        with open(filename) as f:
+            nums = f.readlines()
+    except IOError:
+        raise f'Failed to read data from {filename}'
+
+    return [int(n) for n in nums if not n.startswith('#')]
 
 
 def get_parser():
@@ -37,7 +98,11 @@ def main():
     args = vars(parser.parse_args())
 
     filename = args['filename']
-    print(filename)
+    nums = read_nums(filename)
+
+    total = sum(get_medians(nums))
+
+    print(total % 10000)
 
 
 if __name__ == '__main__':
