@@ -32,6 +32,71 @@ Note this requires a heap that supports deletions, and you'll probably need to
 maintain some kind of mapping between vertices and their positions in the heap.
 """
 import argparse
+from collections import defaultdict
+
+
+def extract_graph(filename):
+    """Extract graph data from file.
+
+        Args:
+            filename
+
+        Returns:
+            Tuple of:
+            - dict of vertices with adjacency lists {'A': ['C', 'D'], ...}
+            - dict of edges {(vertex1, vertex2): edge cost, ...}
+    """
+    with open(filename) as f:
+        vert_count, edge_count = [int(c) for c in f.readline().split()]
+
+        vertices = defaultdict(set)
+        edges = {}
+        for line in f:
+            v1, v2, cost = [int(e) for e in line.split()]
+            vertices[v1].add(v2)
+            vertices[v2].add(v1)
+            edges[(v1, v2)] = cost
+            edges[(v2, v1)] = cost
+
+    assert len(vertices) == vert_count
+    # Includes (v1, v2) and (v2, v1) edges
+    assert len(edges) == edge_count * 2
+
+    return vertices, edges
+
+def get_mst(vertices, edges):
+    """Use Prim's minimum spanning tree algorithm to find MST of graph.
+
+        Args:
+            vertices (dict): adjacent list of vertices {v: [w, ...], ...}
+            edges (dict): edges in form {(v1, v2): cost, ...}
+
+        Returns:
+            dict of minimum spanning tree edges and costs {(v1, v2): cost, ...}
+    """
+    unvisited = [v for v in vertices.keys()]
+    visited = [unvisited.pop()]
+    mst_edges = {}
+
+    while unvisited:
+        current_min = None
+        min_vw = None
+        for v in visited:
+            for w in vertices[v]:
+                if w in visited:
+                    continue
+                if current_min is None:
+                    min_vw = (v, w)
+                    current_min = edges[min_vw]
+                else:
+                    prev_min = current_min
+                    current_min = min(current_min, edges[(v, w)])
+                    if prev_min > current_min:
+                        min_vw = (v, w)
+        visited.append(unvisited.pop(unvisited.index(min_vw[1])))
+        mst_edges[min_vw] = edges[min_vw]
+
+    return mst_edges
 
 def get_parser():
     parser = argparse.ArgumentParser(
@@ -47,7 +112,13 @@ def get_parser():
 def main():
     parser = get_parser()
     parsed = vars(parser.parse_args())
-    print(parsed['filename'])
+
+    vertices, edges = extract_graph(parsed['filename'])
+
+    tree = get_mst(vertices, edges)
+
+    # Overall cost of MST
+    print(sum(tree.values()))
 
 if __name__ == '__main__':
     main()
