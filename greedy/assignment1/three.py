@@ -64,6 +64,7 @@ def extract_graph(filename):
 
     return vertices, edges
 
+
 def get_mst(vertices, edges):
     """Use Prim's minimum spanning tree algorithm to find MST of graph.
 
@@ -98,16 +99,12 @@ def get_mst(vertices, edges):
 
     return mst_edges
 
+
 def get_parser():
-    parser = argparse.ArgumentParser(
-        description=''
-    )
-    parser.add_argument(
-        'filename',
-        metavar='edges.txt',
-        help=''
-    )
+    parser = argparse.ArgumentParser(description='')
+    parser.add_argument('filename', metavar='edges.txt', help='')
     return parser
+
 
 def main():
     parser = get_parser()
@@ -119,6 +116,7 @@ def main():
 
     # Overall cost of MST
     print(sum(tree.values()))
+
 
 if __name__ == '__main__':
     main()

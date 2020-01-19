@@ -26,6 +26,7 @@ the box below.
 """
 import argparse
 
+
 def extract_jobs(filename):
     """Extract total number of jobs, job weight, length.
 
@@ -45,6 +46,7 @@ def extract_jobs(filename):
 
     return total, jobs
 
+
 def sort_jobs(jobs, key, reverse=False):
     """Sort jobs in decreasing order of the ratio (weight - length).
 
@@ -56,6 +58,7 @@ def sort_jobs(jobs, key, reverse=False):
     """
     jobs.sort(key=key, reverse=reverse)
 
+
 def sum_weighted_completion_times(jobs):
     """Return sum of weighted completion times."""
     total = 0
@@ -66,27 +69,29 @@ def sum_weighted_completion_times(jobs):
 
     return total
 
+
 def get_parser(description):
-    parser = argparse.ArgumentParser(
-        description=description
-    )
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         'filename',
         metavar='jobs.txt',
-        help='file with one job [weight] [length] per line such as "74 39"'
+        help='file with one job [weight] [length] per line such as "74 39"',
     )
     return parser
 
+
 def main():
-    parser = get_parser(description='Greedy algorithm that schedules jobs in decreasing order by (weight - length).')
+    parser = get_parser(
+        description='Greedy algorithm that schedules jobs in decreasing order by (weight - length).'
+    )
     parsed = vars(parser.parse_args())
 
     _, jobs = extract_jobs(parsed['filename'])
 
-    sort_by_diff = lambda j: (j[0] - j[1], j[0])
-    sort_jobs(jobs, key=sort_by_diff, reverse=True)
+    sort_jobs(jobs, key=lambda j: (j[0] - j[1], j[0]), reverse=True)
 
     print(sum_weighted_completion_times(jobs))
+
 
 if __name__ == '__main__':
     main()
