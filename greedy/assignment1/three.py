@@ -33,6 +33,8 @@ maintain some kind of mapping between vertices and their positions in the heap.
 """
 import argparse
 from collections import defaultdict
+import heapq as hq
+from math import inf
 
 
 def extract_graph(filename):
@@ -100,6 +102,54 @@ def get_mst(vertices, edges):
     return mst_edges
 
 
+def get_mst_heap(vertices, edges):
+    """Use Prim's MST algorithm and min heap to find MST of graph.
+
+        Args:
+            vertices (dict): adjacent list of vertices {v: [w, ...], ...}
+            edges (dict): edges in form {(v1, v2): cost, ...}
+
+        Returns:
+            dict of minimum spanning tree edges and costs {(v1, v2): cost, ...}
+    """
+    unvisited = [v for v in vertices.keys()]
+    s = unvisited.pop()
+    visited = [s]
+    h = []
+    hq.heapify(h)
+    # keep track of min costs and edges of vertices and outside of heap
+    min_cost = {}
+    min_edge = {}
+
+    mst_edges = {}
+
+    # Initialize heap
+    for v in unvisited:
+        if s in vertices[v]:
+            cost, edge = edges[(s, v)], (s, v)
+        else:
+            cost, edge = inf, None
+        min_cost[v], min_edge[v] = cost, edge
+        hq.heappush(h, (cost, v))
+
+    while h:
+        w_cost, w = hq.heappop(h)
+        print(w_cost, w)
+        visited.append(w)
+        mst_edges[min_edge[w]] = w_cost
+
+        # update keys to maintain invariant
+        for y in [Y for Y in vertices[w] if Y not in visited]:
+            if edges[(w, y)] < min_cost[y]:
+                del h[h.index((min_cost[y], y))]
+                hq.heapify(h)
+                min_cost[y] = edges[(w, y)]
+                min_edge[y] = (w, y)
+                hq.heappush(h, (edges[(w, y)], y))
+
+    return mst_edges
+
+
 def get_parser():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('filename', metavar='edges.txt', help='')
@@ -113,9 +163,11 @@ def main():
     vertices, edges = extract_graph(parsed['filename'])
 
     tree = get_mst(vertices, edges)
+    tree_heap = get_mst_heap(vertices, edges)
 
     # Overall cost of MST
     print(sum(tree.values()))
+    print(sum(tree_heap.values()))
 
 
 if __name__ == '__main__':
